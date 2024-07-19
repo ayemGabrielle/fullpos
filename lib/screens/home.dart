@@ -7,6 +7,7 @@ import 'products.dart'; // Ensure this import is correct
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
+<<<<<<< HEAD
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -41,6 +42,25 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onProductsChanged() {
     _loadProducts(); // Reload products when changed
   }
+=======
+class MyWidget extends StatelessWidget {
+  const MyWidget({Key? key}) : super(key: key);
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
+
+  // Example list of products
+  final List<Product> products = const [
+    Product(
+      name: 'Product 1',
+      description: 'Description of Product 1',
+      image: 'assets/product1.jpg',
+    ),
+    Product(
+      name: 'Product 2',
+      description: 'Description of Product 2',
+      image: 'assets/product2.jpg',
+    ),
+    // Add more products as needed
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final appBarHeight = screenHeight * 0.25; // Adjust this factor as needed
 
     return Scaffold(
+<<<<<<< HEAD
       body: Column(
         children: [
           // AppBar
@@ -184,10 +205,134 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
+=======
+      appBar: AppBar(
+        title: Text(
+          'Home Page',
+          style: GoogleFonts.poppins(color: Colors.black),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Overview',
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Transactions',
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '1,2324',
+                            style: GoogleFonts.poppins(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Sales',
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '15,242',
+                            style: GoogleFonts.poppins(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Products',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: AssetImage(products[index].image),
+                              ),
+                              title: Text(
+                                products[index].name,
+                                style: GoogleFonts.poppins(color: Colors.black),
+                              ),
+                              subtitle: Text(
+                                products[index].description,
+                                style: GoogleFonts.poppins(color: Colors.black),
+                              ),
+                            );
+                          },
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
                         ),
                       ),
                     ],
                   ),
+<<<<<<< HEAD
                   SizedBox(height: 16),
                   // Products Card
                   Expanded(
@@ -246,6 +391,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+=======
+                ),
+              ),
+            ),
+          ],
+        ),
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
       ),
       drawer: Drawer(
         child: ListView(
@@ -277,30 +429,42 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             ListTile(
+<<<<<<< HEAD
               title: Text(
                 'Dashboard',
                 style: GoogleFonts.poppins(color: Colors.black),
               ),
+=======
+              title: Text('Dashboard', style: GoogleFonts.poppins(color: Colors.black)),
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
               leading: const Icon(Icons.dashboard),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/dashboard');
               },
             ),
             ListTile(
+<<<<<<< HEAD
               title: Text(
                 'Sales',
                 style: GoogleFonts.poppins(color: Colors.black),
               ),
+=======
+              title: Text('Sales', style: GoogleFonts.poppins(color: Colors.black)),
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
               leading: const Icon(Icons.attach_money),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/sales');
               },
             ),
             ListTile(
+<<<<<<< HEAD
               title: Text(
                 'Products',
                 style: GoogleFonts.poppins(color: Colors.black),
               ),
+=======
+              title: Text('Products', style: GoogleFonts.poppins(color: Colors.black)),
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
               leading: const Icon(Icons.shopping_bag),
               onTap: () {
                 Navigator.push(
@@ -314,20 +478,28 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
+<<<<<<< HEAD
               title: Text(
                 'Account',
                 style: GoogleFonts.poppins(color: Colors.black),
               ),
+=======
+              title: Text('Account', style: GoogleFonts.poppins(color: Colors.black)),
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
               leading: const Icon(Icons.people),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/account');
               },
             ),
             ListTile(
+<<<<<<< HEAD
               title: Text(
                 'Logout',
                 style: GoogleFonts.poppins(color: Colors.black),
               ),
+=======
+              title: Text('Logout', style: GoogleFonts.poppins(color: Colors.black)),
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
               leading: const Icon(Icons.logout),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/logout');
@@ -339,3 +511,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+<<<<<<< HEAD
+=======
+
+class Product {
+  final String name;
+  final String description;
+  final String image;
+
+  const Product({
+    required this.name,
+    required this.description,
+    required this.image,
+  });
+}
+>>>>>>> 3f10508f32fd3e5694524823dbf51388b8a8e209
