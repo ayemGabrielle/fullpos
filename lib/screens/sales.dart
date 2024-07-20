@@ -1,6 +1,303 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
-// Define a class to represent a sales transaction
+class SalesScreen extends StatefulWidget {
+  @override
+  _SalesScreenState createState() => _SalesScreenState();
+}
+
+class _SalesScreenState extends State<SalesScreen> {
+  String username = 'Default User';
+  String avatarUrl = 'assets/default_avatar.png';
+  String currentRoute = '/sales';
+  DateTimeRange? selectedDateRange;
+  List<SalesTransaction> salesTransactions = [];
+  List<SalesTransaction> filteredTransactions = [];
+  Map<String, double> totalSales = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+    _fetchSalesTransactions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final route = ModalRoute.of(context)?.settings.name;
+      if (route != null) {
+        setState(() {
+          currentRoute = route;
+        });
+      }
+    });
+  }
+
+  Future<void> _fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('name') ?? 'Default User';
+      avatarUrl = prefs.getString('avatarUrl') ?? 'assets/default_avatar.png';
+    });
+  }
+
+  Future<void> _fetchSalesTransactions() async {
+    // Simulating data fetch with a static list for now
+    salesTransactions = [
+    SalesTransaction(date: '2024-07-18', time: '10:00 AM', productName: 'Product A', price: 100.0),
+    SalesTransaction(date: '2024-07-18', time: '11:30 AM', productName: 'Product B', price: 150.0),
+    SalesTransaction(date: '2024-07-18', time: '1:00 PM', productName: 'Product C', price: 120.0),
+    SalesTransaction(date: '2024-07-18', time: '3:30 PM', productName: 'Product D', price: 90.0),
+    SalesTransaction(date: '2024-07-18', time: '5:00 PM', productName: 'Product E', price: 180.0),
+    SalesTransaction(date: '2024-07-19', time: '9:00 AM', productName: 'Product F', price: 130.0),
+    SalesTransaction(date: '2024-07-19', time: '10:30 AM', productName: 'Product G', price: 110.0),
+    SalesTransaction(date: '2024-07-19', time: '12:00 PM', productName: 'Product H', price: 95.0),
+    SalesTransaction(date: '2024-07-19', time: '2:30 PM', productName: 'Product I', price: 210.0),
+    SalesTransaction(date: '2024-07-19', time: '4:00 PM', productName: 'Product J', price: 70.0),
+    SalesTransaction(date: '2024-07-20', time: '11:00 AM', productName: 'Product K', price: 125.0),
+    SalesTransaction(date: '2024-07-20', time: '1:30 PM', productName: 'Product L', price: 155.0),
+    SalesTransaction(date: '2024-07-20', time: '3:00 PM', productName: 'Product M', price: 85.0),
+    SalesTransaction(date: '2024-07-20', time: '5:30 PM', productName: 'Product N', price: 145.0),
+    SalesTransaction(date: '2024-07-21', time: '10:00 AM', productName: 'Product O', price: 115.0),
+    SalesTransaction(date: '2024-07-21', time: '12:30 PM', productName: 'Product P', price: 190.0),
+    SalesTransaction(date: '2024-07-21', time: '2:00 PM', productName: 'Product Q', price: 105.0),
+    SalesTransaction(date: '2024-07-21', time: '4:30 PM', productName: 'Product R', price: 225.0),
+    SalesTransaction(date: '2024-07-22', time: '9:30 AM', productName: 'Product S', price: 140.0),
+    SalesTransaction(date: '2024-07-22', time: '11:00 AM', productName: 'Product T', price: 175.0),
+      // Add more transactions here
+    ];
+    _filterTransactions();
+  }
+
+  void _filterTransactions() {
+    if (selectedDateRange != null) {
+      final start = selectedDateRange!.start;
+      final end = selectedDateRange!.end;
+      filteredTransactions = salesTransactions.where((transaction) {
+        final transactionDate = DateTime.parse(transaction.date);
+        return transactionDate.isAfter(start) && transactionDate.isBefore(end);
+      }).toList();
+    } else {
+      filteredTransactions = List.from(salesTransactions);
+    }
+    _calculateTotalSales();
+  }
+
+  void _calculateTotalSales() {
+    double totalAmount = 0;
+    int totalCount = filteredTransactions.length;
+    
+    for (var transaction in filteredTransactions) {
+      totalAmount += transaction.price;
+    }
+
+    // Save to SharedPreferences
+    _saveSalesData(totalAmount, totalCount);
+  }
+
+  Future<void> _saveSalesData(double totalAmount, int totalCount) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('totalSalesAmount', totalAmount);
+    await prefs.setInt('totalSalesCount', totalCount);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Sales',
+          style: GoogleFonts.poppins(
+            textStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.green,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: SalesTransactionSearchDelegate(salesTransactions),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: () async {
+              final dateRange = await showDateRangePicker(
+                context: context,
+                firstDate: DateTime(2020),
+                lastDate: DateTime.now(),
+                initialDateRange: selectedDateRange,
+              );
+              if (dateRange != null) {
+                setState(() {
+                  selectedDateRange = dateRange;
+                  _filterTransactions();
+                });
+              }
+            },
+          ),
+        ],
+      ),
+      drawer: _buildDrawer(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width,
+              ),
+              child: DataTable(
+                columns: _buildDataColumns(),
+                rows: filteredTransactions.map((transaction) {
+                  final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(transaction.date));
+                  return DataRow(cells: [
+                    DataCell(Text(formattedDate)),
+                    DataCell(Text(transaction.time)),
+                    DataCell(Text(transaction.productName)),
+                    DataCell(Text('₱${transaction.price.toStringAsFixed(2)}')),
+                  ]);
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<DataColumn> _buildDataColumns() {
+    return [
+      DataColumn(
+        label: Text(
+          'Date',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+        ),
+      ),
+      DataColumn(
+        label: Text(
+          'Time',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+        ),
+      ),
+      DataColumn(
+        label: Text(
+          'Product',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+        ),
+      ),
+      DataColumn(
+        label: Text(
+          'Price (₱)',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.green,
+            ),
+            child: Row(
+              children: <Widget>[
+                CircleAvatar(
+                  backgroundImage: NetworkImage(avatarUrl),
+                  radius: 30,
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    username,
+                    style: GoogleFonts.poppins(
+                      textStyle: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildDrawerItem(
+            icon: Icons.home,
+            text: 'Home',
+            routeName: '/main',
+          ),
+          _buildDrawerItem(
+            icon: Icons.dashboard,
+            text: 'Dashboard',
+            routeName: '/dashboard',
+          ),
+          _buildDrawerItem(
+            icon: Icons.attach_money,
+            text: 'Sales',
+            routeName: '/sales',
+          ),
+          _buildDrawerItem(
+            icon: Icons.shopping_bag,
+            text: 'Products',
+            routeName: '/products',
+          ),
+          _buildDrawerItem(
+            icon: Icons.people,
+            text: 'Account',
+            routeName: '/account',
+          ),
+          _buildDrawerItem(
+            icon: Icons.logout,
+            text: 'Logout',
+            routeName: '/logout',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String text,
+    required String routeName,
+  }) {
+    final bool isActive = currentRoute == routeName;
+
+    return ListTile(
+      leading: Icon(icon, color: Color.fromARGB(255, 55, 56, 55)),
+      title: Text(
+        text,
+        style: GoogleFonts.poppins(
+          textStyle: TextStyle(
+            color: isActive ? Colors.white : Colors.black,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+      tileColor: isActive ? const Color.fromARGB(188, 76, 175, 79) : null,
+      onTap: () {
+        Navigator.pushReplacementNamed(context, routeName);
+        setState(() {
+          currentRoute = routeName;
+        });
+      },
+    );
+  }
+}
+
 class SalesTransaction {
   final String date;
   final String time;
@@ -15,297 +312,13 @@ class SalesTransaction {
   });
 }
 
-class SalesScreen extends StatefulWidget {
-  SalesScreen({Key? key}) : super(key: key);
+class SalesTransactionSearchDelegate extends SearchDelegate {
+  final List<SalesTransaction> salesTransactions;
+
+  SalesTransactionSearchDelegate(this.salesTransactions);
 
   @override
-  _SalesScreenState createState() => _SalesScreenState();
-}
-
-class _SalesScreenState extends State<SalesScreen> {
-  late List<SalesTransaction> filteredTransactions;
-  late Map<String, double> totalSales;
-  late DateTime startDate;
-  late DateTime endDate;
-
-  // Example list of sales transactions
-  final List<SalesTransaction> salesTransactions = [
-    SalesTransaction(
-      date: '2024-07-18',
-      time: '10:00 AM',
-      productName: 'Product A',
-      price: 100.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-18',
-      time: '11:30 AM',
-      productName: 'Product B',
-      price: 150.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-18',
-      time: '1:00 PM',
-      productName: 'Product C',
-      price: 120.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-18',
-      time: '3:30 PM',
-      productName: 'Product D',
-      price: 90.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-18',
-      time: '5:00 PM',
-      productName: 'Product E',
-      price: 180.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-19',
-      time: '9:00 AM',
-      productName: 'Product F',
-      price: 130.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-19',
-      time: '10:30 AM',
-      productName: 'Product G',
-      price: 110.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-19',
-      time: '12:00 PM',
-      productName: 'Product H',
-      price: 95.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-19',
-      time: '2:30 PM',
-      productName: 'Product I',
-      price: 210.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-19',
-      time: '4:00 PM',
-      productName: 'Product J',
-      price: 70.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-20',
-      time: '11:00 AM',
-      productName: 'Product K',
-      price: 125.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-20',
-      time: '1:30 PM',
-      productName: 'Product L',
-      price: 155.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-20',
-      time: '3:00 PM',
-      productName: 'Product M',
-      price: 85.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-20',
-      time: '5:30 PM',
-      productName: 'Product N',
-      price: 145.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-21',
-      time: '10:00 AM',
-      productName: 'Product O',
-      price: 115.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-21',
-      time: '12:30 PM',
-      productName: 'Product P',
-      price: 190.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-21',
-      time: '2:00 PM',
-      productName: 'Product Q',
-      price: 105.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-21',
-      time: '4:30 PM',
-      productName: 'Product R',
-      price: 225.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-22',
-      time: '9:30 AM',
-      productName: 'Product S',
-      price: 140.0,
-    ),
-    SalesTransaction(
-      date: '2024-07-22',
-      time: '11:00 AM',
-      productName: 'Product T',
-      price: 175.0,
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    filteredTransactions = salesTransactions;
-    calculateTotalSales();
-    startDate = DateTime.now().subtract(Duration(days: 7));
-    endDate = DateTime.now();
-  }
-
-  // Calculate total sales per transaction
-  void calculateTotalSales() {
-    totalSales = {};
-    salesTransactions.forEach((transaction) {
-      totalSales[transaction.date] =
-          (totalSales[transaction.date] ?? 0) + transaction.price;
-    });
-  }
-
-  // Method to filter transactions based on date range
-  void filterTransactionsByDateRange(DateTime start, DateTime end) {
-    setState(() {
-      filteredTransactions = salesTransactions.where((transaction) {
-        DateTime transactionDate = DateTime.parse(transaction.date);
-        return transactionDate.isAfter(start.subtract(Duration(days: 1))) &&
-            transactionDate.isBefore(end.add(Duration(days: 1)));
-      }).toList();
-    });
-  }
-
-  // Method to filter transactions by search query
-  void filterTransactions(String query) {
-    setState(() {
-      filteredTransactions = salesTransactions.where((transaction) =>
-          transaction.productName.toLowerCase().contains(query.toLowerCase())).toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sales'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () async {
-              final String? result = await showSearch(
-                context: context,
-                delegate: SalesTransactionSearchDelegate(salesTransactions),
-              );
-              if (result != null && result.isNotEmpty) {
-                filterTransactions(result);
-              }
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.filter_list),
-            onPressed: () async {
-              await showDateRangePicker(
-                context: context,
-                firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
-                initialDateRange: DateTimeRange(start: startDate, end: endDate),
-                builder: (BuildContext context, Widget? child) {
-                  return Theme(
-                    data: ThemeData(
-                      primarySwatch: Colors.green, // Customize your primary color here
-                      // Optionally, customize other aspects like text styles
-                    ),
-                    child: child!,
-                  );
-                },
-              ).then((dateRange) {
-                if (dateRange != null) {
-                  setState(() {
-                    startDate = dateRange.start;
-                    endDate = dateRange.end;
-                  });
-                  filterTransactionsByDateRange(startDate, endDate);
-                }
-              });
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: DataTable(
-              headingRowHeight: 40,
-              dataRowHeight: 60,
-              dividerThickness: 1,
-              columnSpacing: 16,
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    'Date',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Time',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Product',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Price',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Total Sales',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                ),
-              ],
-              rows: filteredTransactions.map((transaction) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text(transaction.date)),
-                    DataCell(Text(transaction.time)),
-                    DataCell(Text(transaction.productName)),
-                    DataCell(Text('\$${transaction.price.toStringAsFixed(2)}')),
-                    DataCell(Text('\$${totalSales[transaction.date]!.toStringAsFixed(2)}')),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Search delegate for handling search actions
-class SalesTransactionSearchDelegate extends SearchDelegate<String> {
-  final List<SalesTransaction> transactions;
-
-  SalesTransactionSearchDelegate(this.transactions);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
+  List<Widget>? buildActions(BuildContext context) {
     return [
       IconButton(
         icon: Icon(Icons.clear),
@@ -321,142 +334,50 @@ class SalesTransactionSearchDelegate extends SearchDelegate<String> {
     return IconButton(
       icon: Icon(Icons.arrow_back),
       onPressed: () {
-        close(context, '');
+        close(context, null);
       },
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    return Container(); // Build your search results here if needed
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestionList = query.isEmpty
-        ? []
-        : transactions.where((transaction) {
-            return transaction.productName.toLowerCase().contains(query.toLowerCase());
-          }).toList();
+    final results = salesTransactions
+        .where((transaction) =>
+            transaction.productName.toLowerCase().contains(query.toLowerCase()))
+        .toList();
 
     return ListView.builder(
-      itemCount: suggestionList.length,
+      itemCount: results.length,
       itemBuilder: (context, index) {
+        final transaction = results[index];
         return ListTile(
-          title: Text(suggestionList[index].productName),
-          onTap: () {
-            close(context, suggestionList[index].productName);
-          },
+          title: Text(transaction.productName),
+          subtitle: Text('₱${transaction.price.toStringAsFixed(2)}'),
         );
       },
     );
   }
-}
-
-// Filter transactions by date range dialog
-class DateRangePickerDialog extends StatelessWidget {
-  final DateTime initialStartDate;
-  final DateTime initialEndDate;
-  final Function(DateTime, DateTime) onDateRangeSelected;
-
-  DateRangePickerDialog({
-    required this.initialStartDate,
-    required this.initialEndDate,
-    required this.onDateRangeSelected,
-  });
 
   @override
-  Widget build(BuildContext context) {
-    DateTime? startDate = initialStartDate;
-    DateTime? endDate = initialEndDate;
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = salesTransactions
+        .where((transaction) =>
+            transaction.productName.toLowerCase().contains(query.toLowerCase()))
+        .toList();
 
-    return AlertDialog(
-      title: Text('Select Date Range'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Start Date:'),
-          SizedBox(height: 8),
-          InkWell(
-            onTap: () async {
-              final pickedStartDate = await showDatePicker(
-                context: context,
-                initialDate: startDate!,
-                firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
-                builder: (BuildContext context, Widget? child) {
-                  return Theme(
-                    data: ThemeData(
-                      primarySwatch: Colors.green, // Customize your primary color here
-                      // Optionally, customize other aspects like text styles
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (pickedStartDate != null) {
-                startDate = pickedStartDate;
-              }
-            },
-            child: InputDecorator(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: startDate != null ? startDate.toString() : 'Select start date',
-              ),
-              child: Text(startDate != null ? startDate!.toString() : ''),
-            ),
-          ),
-          SizedBox(height: 16),
-          Text('End Date:'),
-          SizedBox(height: 8),
-          InkWell(
-            onTap: () async {
-              final pickedEndDate = await showDatePicker(
-                context: context,
-                initialDate: endDate!,
-                firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
-                builder: (BuildContext context, Widget? child) {
-                  return Theme(
-                    data: ThemeData(
-                      primarySwatch: Colors.green, // Customize your primary color here
-                      // Optionally, customize other aspects like text styles
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (pickedEndDate != null) {
-                endDate = pickedEndDate;
-              }
-            },
-            child: InputDecorator(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: endDate != null ? endDate.toString() : 'Select end date',
-              ),
-              child: Text(endDate != null ? endDate!.toString() : ''),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        final transaction = suggestions[index];
+        return ListTile(
+          title: Text(transaction.productName),
+          subtitle: Text('₱${transaction.price.toStringAsFixed(2)}'),
+          onTap: () {
+            query = transaction.productName;
+            showResults(context);
           },
-          child: Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            if (startDate != null && endDate != null) {
-              onDateRangeSelected(startDate!, endDate!);
-              Navigator.of(context).pop();
-            }
-          },
-          child: Text('Apply'),
-        ),
-      ],
+        );
+      },
     );
   }
 }

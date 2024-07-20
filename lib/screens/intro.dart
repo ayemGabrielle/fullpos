@@ -27,8 +27,8 @@ class _IntroScreenState extends State<IntroScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(219, 219, 255, 204),
-              Color.fromARGB(223, 253, 255, 237),
+              Color.fromARGB(255, 219, 219, 219),
+              Color.fromARGB(255, 219, 219, 219),
             ],
           ),
         ),
