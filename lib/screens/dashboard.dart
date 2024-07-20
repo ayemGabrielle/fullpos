@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+<<<<<<< HEAD
 import 'package:shared_preferences/shared_preferences.dart';
+=======
+import 'home.dart'; // Import your HomeScreen
+import 'sales.dart'; // Import other screens as needed
+import 'products.dart'; // Import other screens as needed
+import 'account.dart'; // Import other screens as needed
+
+>>>>>>> origin/main
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -97,6 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ],
             ),
+<<<<<<< HEAD
           ),
           _buildDrawerItem(
             icon: Icons.home,
@@ -129,6 +138,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
             routeName: '/logout',
           ),
         ],
+=======
+            ListTile(
+              title: Text(
+                'Home',
+                style: GoogleFonts.poppins(color: Colors.black),
+              ),
+              leading: const Icon(Icons.home),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/home');
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Dashboard',
+                style: GoogleFonts.poppins(color: Colors.black),
+              ),
+              leading: const Icon(Icons.dashboard),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/dashboard');
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Sales',
+                style: GoogleFonts.poppins(color: Colors.black),
+              ),
+              leading: const Icon(Icons.attach_money),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/sales');
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Products',
+                style: GoogleFonts.poppins(color: Colors.black),
+              ),
+              leading: const Icon(Icons.shopping_bag),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/products');
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Account',
+                style: GoogleFonts.poppins(color: Colors.black),
+              ),
+              leading: const Icon(Icons.people),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/account');
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Logout',
+                style: GoogleFonts.poppins(color: Colors.black),
+              ),
+              leading: const Icon(Icons.logout),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Center(
+        child: Text(
+          'Dashboard Content',
+          style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+>>>>>>> origin/main
       ),
     );
   }
