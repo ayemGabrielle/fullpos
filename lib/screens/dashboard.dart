@@ -1,242 +1,174 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< HEAD
-import 'package:shared_preferences/shared_preferences.dart';
-=======
-import 'home.dart'; // Import your HomeScreen
-import 'sales.dart'; // Import other screens as needed
-import 'products.dart'; // Import other screens as needed
-import 'account.dart'; // Import other screens as needed
+import 'package:charts_flutter/flutter.dart' as charts;
+import '../navigations/bottom_bars.dart';
+import '../navigations/custom_drawer.dart';
 
->>>>>>> origin/main
+class MyLineChart extends StatelessWidget {
+  final List<charts.Series<LinearSales, int>> seriesList;
+  final bool animate;
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  MyLineChart(this.seriesList, {this.animate = true}); // Default value for animate
 
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
+  Widget build(BuildContext context) {
+    return charts.LineChart(
+      seriesList,
+      animate: animate,
+    );
+  }
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  String _userName = 'Default User'; // Default user name
-  String _avatarUrl = 'assets/default_avatar.png'; // Default avatar URL
-  String currentRoute = '/dashboard'; // Default route
+class MyPieChart extends StatelessWidget {
+  final List<charts.Series<PieSegment, String>> seriesList;
+  final bool animate;
+
+  MyPieChart(this.seriesList, {this.animate = true}); // Default value for animate
 
   @override
-  void initState() {
-    super.initState();
-    _fetchUserDetails();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final route = ModalRoute.of(context)?.settings.name;
-      if (route != null) {
-        setState(() {
-          currentRoute = route;
-        });
-      }
-    });
+  Widget build(BuildContext context) {
+    return charts.PieChart(
+      seriesList,
+      animate: animate,
+    );
   }
+}
 
-  Future<void> _fetchUserDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userName = prefs.getString('name') ?? 'Default User';
-      _avatarUrl = prefs.getString('avatarUrl') ?? 'assets/default_avatar.png';
-    });
+class MyBarChart extends StatelessWidget {
+  final List<charts.Series<BarSales, String>> seriesList;
+  final bool animate;
+
+  MyBarChart(this.seriesList, {this.animate = true}); // Default value for animate
+
+  @override
+  Widget build(BuildContext context) {
+    return charts.BarChart(
+      seriesList,
+      animate: animate,
+    );
   }
+}
+
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Dashboard',
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        title: const Text('Dashboard'),
+        backgroundColor: Color.fromRGBO(84, 179, 44, 0.525),
+      ),
+      drawer: CustomDrawer(
+        currentRoute: '/dashboard',
+        onRouteChanged: (route) {
+          Navigator.pushReplacementNamed(context, route);
+        },
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 300,
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: MyLineChart(_createSampleDataLine()),
+              ),
+              Container(
+                height: 300,
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: MyPieChart(_createSampleDataPie()),
+              ),
+              Container(
+                height: 300,
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: MyBarChart(_createSampleDataBar()),
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.green, // Primary color
       ),
-      drawer: _buildDrawer(),
-      body: Center(
-        child: Text(
-          'Dashboard Content',
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: MyBottomNavigationBar(currentRoute: '/dashboard'), // Add the bottom navigation bar here
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.green, // Primary color
-            ),
-            child: Row(
-              children: <Widget>[
-                CircleAvatar(
-                  backgroundImage: NetworkImage(_avatarUrl),
-                  radius: 30,
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    _userName, // User name
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                    overflow: TextOverflow.ellipsis, // Ensure text fits
-                  ),
-                ),
-              ],
-            ),
-<<<<<<< HEAD
-          ),
-          _buildDrawerItem(
-            icon: Icons.home,
-            text: 'Home',
-            routeName: '/main',
-          ),
-          _buildDrawerItem(
-            icon: Icons.dashboard,
-            text: 'Dashboard',
-            routeName: '/dashboard',
-          ),
-          _buildDrawerItem(
-            icon: Icons.attach_money,
-            text: 'Sales',
-            routeName: '/sales',
-          ),
-          _buildDrawerItem(
-            icon: Icons.shopping_bag,
-            text: 'Products',
-            routeName: '/products',
-          ),
-          _buildDrawerItem(
-            icon: Icons.people,
-            text: 'Account',
-            routeName: '/account',
-          ),
-          _buildDrawerItem(
-            icon: Icons.logout,
-            text: 'Logout',
-            routeName: '/logout',
-          ),
-        ],
-=======
-            ListTile(
-              title: Text(
-                'Home',
-                style: GoogleFonts.poppins(color: Colors.black),
-              ),
-              leading: const Icon(Icons.home),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/home');
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Dashboard',
-                style: GoogleFonts.poppins(color: Colors.black),
-              ),
-              leading: const Icon(Icons.dashboard),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/dashboard');
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Sales',
-                style: GoogleFonts.poppins(color: Colors.black),
-              ),
-              leading: const Icon(Icons.attach_money),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/sales');
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Products',
-                style: GoogleFonts.poppins(color: Colors.black),
-              ),
-              leading: const Icon(Icons.shopping_bag),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/products');
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Account',
-                style: GoogleFonts.poppins(color: Colors.black),
-              ),
-              leading: const Icon(Icons.people),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/account');
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Logout',
-                style: GoogleFonts.poppins(color: Colors.black),
-              ),
-              leading: const Icon(Icons.logout),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Center(
-        child: Text(
-          'Dashboard Content',
-          style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
->>>>>>> origin/main
-      ),
-    );
+  static List<charts.Series<LinearSales, int>> _createSampleDataLine() {
+    final data = [
+      LinearSales(0, 5),
+      LinearSales(1, 25),
+      LinearSales(2, 100),
+      LinearSales(3, 75),
+    ];
+
+    return [
+      charts.Series<LinearSales, int>(
+        id: 'Sales',
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (LinearSales sales, _) => sales.year,
+        measureFn: (LinearSales sales, _) => sales.sales,
+        data: data,
+      )
+    ];
   }
 
-  Widget _buildDrawerItem({
-    required IconData icon,
-    required String text,
-    required String routeName,
-  }) {
-    final bool isActive = currentRoute == routeName;
+  static List<charts.Series<PieSegment, String>> _createSampleDataPie() {
+    final data = [
+      PieSegment('A', 35),
+      PieSegment('B', 25),
+      PieSegment('C', 15),
+      PieSegment('D', 25),
+    ];
 
-    return ListTile(
-      leading: Icon(icon, color: Color.fromARGB(255, 55, 56, 55)), // Primary color
-      title: Text(
-        text,
-        style: GoogleFonts.poppins(
-          textStyle: TextStyle(
-            color: isActive ? Colors.white : Colors.black,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-      tileColor: isActive ? const Color.fromARGB(188, 76, 175, 79) : null, // Highlight color
-      onTap: () {
-        Navigator.pushReplacementNamed(context, routeName);
-        setState(() {
-          currentRoute = routeName; // Update current route
-        });
-      },
-    );
+    return [
+      charts.Series<PieSegment, String>(
+        id: 'Segments',
+        domainFn: (PieSegment segment, _) => segment.label,
+        measureFn: (PieSegment segment, _) => segment.value,
+        data: data,
+        labelAccessorFn: (PieSegment segment, _) => '${segment.label}: ${segment.value}',
+      )
+    ];
   }
+
+  static List<charts.Series<BarSales, String>> _createSampleDataBar() {
+    final data = [
+      BarSales('2014', 5),
+      BarSales('2015', 25),
+      BarSales('2016', 100),
+      BarSales('2017', 75),
+    ];
+
+    return [
+      charts.Series<BarSales, String>(
+        id: 'Sales',
+        colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
+        domainFn: (BarSales sales, _) => sales.year,
+        measureFn: (BarSales sales, _) => sales.sales,
+        data: data,
+      )
+    ];
+  }
+}
+
+class LinearSales {
+  final int year;
+  final int sales;
+
+  LinearSales(this.year, this.sales);
+}
+
+class PieSegment {
+  final String label;
+  final int value;
+
+  PieSegment(this.label, this.value);
+}
+
+class BarSales {
+  final String year;
+  final int sales;
+
+  BarSales(this.year, this.sales);
 }
